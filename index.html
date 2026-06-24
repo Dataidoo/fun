@@ -569,6 +569,109 @@
   .store-cycle.prev { left: -18px; }
   .store-cycle.next { right: -18px; }
 
+  /* STORE — single-image carousel inside the card */
+  .store-product-strip {
+    position: relative;
+    margin-bottom: 16px;
+    overflow: hidden;
+    border-radius: 14px;
+  }
+  .store-h-gallery {
+    cursor: grab;
+    padding: 0 !important;            /* override .h-gallery default padding */
+    gap: 0 !important;
+  }
+  .store-h-gallery.dragging { cursor: grabbing; }
+  .h-gallery-scroll:has(.store-h-gallery) {
+    -webkit-mask-image: none;
+            mask-image: none;          /* no edge fade — single image only */
+    padding: 0;
+  }
+  .store-h-gallery .g-cell {
+    flex: 0 0 100%;
+    aspect-ratio: 1 / 1;
+    scroll-snap-align: center;
+    background: var(--bg-deeper);
+    border-radius: 14px;
+    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -3px -3px 10px var(--shadow-light);
+    overflow: hidden;
+    position: relative;
+  }
+  .store-h-gallery .g-cell img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+  }
+  .store-product-empty {
+    aspect-ratio: 1 / 1;
+    background: var(--bg-deeper);
+    border-radius: 14px;
+    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -3px -3px 10px var(--shadow-light);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .store-product-empty .big {
+    font-size: 38px;
+    opacity: 0.5;
+    margin-bottom: 6px;
+    color: var(--olive);
+  }
+  /* edge arrows for cycling images — sit inside the card on the image edges */
+  .strip-arrow {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 38px; height: 38px;
+    border: none; border-radius: 50%;
+    background: var(--bg);
+    box-shadow: 4px 4px 9px var(--shadow-dark), -3px -3px 9px var(--shadow-light);
+    color: var(--coral);
+    font-family: 'Fraunces', serif;
+    font-size: 22px; font-weight: 800;
+    cursor: pointer;
+    display: grid; place-items: center;
+    z-index: 3;
+    transition: transform 0.12s ease;
+  }
+  .strip-arrow:hover { transform: translateY(-50%) scale(1.06); }
+  .strip-arrow:active {
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -2px -2px 6px var(--shadow-light);
+  }
+  .strip-left  { left: 10px; }
+  .strip-right { right: 10px; }
+
+  /* Toggles row — centered, with product arrows on each end */
+  .store-toggles {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .store-nav-btn {
+    width: 34px; height: 34px;
+    border: none; border-radius: 10px;
+    background: var(--bg);
+    box-shadow: 4px 4px 9px var(--shadow-dark), -3px -3px 9px var(--shadow-light);
+    color: var(--coral);
+    font-family: 'Fraunces', serif;
+    font-size: 20px; font-weight: 800; line-height: 1;
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform 0.12s ease;
+    padding: 0;
+  }
+  .store-nav-btn:hover { transform: scale(1.06); }
+  .store-nav-btn:active {
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -2px -2px 6px var(--shadow-light);
+  }
+
   .store-product-image {
     aspect-ratio: 1 / 1;
     border-radius: 16px;
@@ -628,7 +731,6 @@
     border-radius: 10px;
     padding: 4px;
     box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -2px -2px 6px var(--shadow-light);
-    margin-bottom: 14px;
   }
   .gender-toggle button {
     border: none; background: transparent;
@@ -1358,13 +1460,6 @@
 </head>
 <body>
 
-<!-- AMBIENT TOYS — sit on the body background, scattered -->
-<div class="ambient amb-blob amb-1" onclick="ambMorph(this)"></div>
-<div class="ambient amb-knob amb-2" onclick="ambSpin(this)"></div>
-<div class="ambient amb-switch amb-3" onclick="this.classList.toggle('on')"></div>
-<div class="ambient amb-blob amb-4" onclick="ambMorph(this)"></div>
-<div class="ambient amb-switch amb-5" onclick="this.classList.toggle('on')"></div>
-
 <div class="wrap">
 
   <!-- HEADER -->
@@ -1503,21 +1598,27 @@
     <div class="store-wrap" style="grid-template-columns: 1fr; max-width: 520px; margin: 0 auto;">
 
       <div class="store-card">
-        <button class="store-cycle prev" onclick="prevProduct()" aria-label="Previous">‹</button>
-        <button class="store-cycle next" onclick="nextProduct()" aria-label="Next">›</button>
 
-        <div class="store-product-image">
-          <img id="prodImg" src="" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-          <div class="ph" id="prodPh">
-            <div class="big" id="prodEmoji">👕</div>
-            <span id="prodImgName">images/prod-1.png</span>
+        <div class="store-product-strip">
+          <button class="strip-arrow strip-left"  onclick="stripStep(-1)" aria-label="Previous Image">‹</button>
+          <button class="strip-arrow strip-right" onclick="stripStep( 1)" aria-label="Next Image">›</button>
+          <div class="h-gallery-scroll">
+            <div class="h-gallery store-h-gallery" id="prodGallery"></div>
           </div>
-          <span class="store-counter" id="prodCounter">1 / 3</span>
+          <div class="store-product-empty" id="prodEmpty" style="display:none;">
+            <div class="big" id="prodEmoji">👕</div>
+            <span id="prodEmptyText">No images yet</span>
+          </div>
         </div>
 
-        <div class="gender-toggle" role="tablist" aria-label="Model">
-          <button id="genderM" class="on" onclick="setGender('m')">MASC</button>
-          <button id="genderF"         onclick="setGender('f')">FEMME</button>
+        <div class="store-toggles">
+          <button class="store-nav-btn" onclick="prevProduct()" aria-label="Previous Product">‹</button>
+          <div class="gender-toggle" role="tablist" aria-label="Model">
+            <button id="genderM" class="on" onclick="setGender('m')">MASC</button>
+            <button id="genderF"         onclick="setGender('f')">FEMME</button>
+          </div>
+          <div class="gender-toggle" id="colorToggle" role="tablist" aria-label="Color" style="display:none;"></div>
+          <button class="store-nav-btn" onclick="nextProduct()" aria-label="Next Product">›</button>
         </div>
 
         <div class="store-product-name" id="prodName">—</div>
@@ -1838,6 +1939,9 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
     document.getElementById('panel-' + name).classList.add('on');
+    // close any open overlay so it doesn't bleed across tabs
+    document.querySelectorAll('.lightbox.open, .lyrics-modal.open, .order-modal.open')
+      .forEach(m => m.classList.remove('open'));
   }
 
   /* ============================================================
@@ -1860,10 +1964,15 @@
   let isShuffle = false;
   let isRepeat  = false;
 
+  // encode each path segment so spaces / special chars don't break URLs
+  function encodePath(p) {
+    return p.split('/').map(encodeURIComponent).join('/');
+  }
+
   function loadTrack(i) {
     trackIdx = i;
     const t = TRACKS[i];
-    audio.src = t.file;
+    audio.src = encodePath(t.file);
     document.getElementById('trackTitle').textContent  = t.title;
     document.getElementById('trackArtist').textContent = t.artist;
     document.getElementById('dur').textContent         = t.duration;
@@ -1873,11 +1982,11 @@
 
     const img = document.getElementById('artImg');
     const ph  = img.nextElementSibling;
-    img.src = t.art;
-    img.style.display = 'block';
-    ph.style.display  = 'none';
     document.getElementById('artPhText').textContent = t.art;
+    // set onerror BEFORE src — otherwise cached failures can be missed
     img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+    img.onload  = () => { img.style.display = 'block'; ph.style.display = 'none'; };
+    img.src = encodePath(t.art);
 
     document.getElementById('downloadBtn').href = t.file;
     renderList();
@@ -2007,8 +2116,15 @@
     body.textContent = 'Loading...';
     document.getElementById('lyricsModal').classList.add('open');
 
-    fetch(t.lyrics)
-      .then(r => { if (!r.ok) throw new Error('not found'); return r.text(); })
+    // file:// fetch is blocked by the browser — warn the user immediately
+    if (location.protocol === 'file:') {
+      body.classList.add('empty');
+      body.textContent = `Lyrics can't load from file:// — open the site through a web server (GitHub Pages, etc.) and try again.`;
+      return;
+    }
+
+    fetch(encodePath(t.lyrics))
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
       .then(text => {
         if (!text.trim()) {
           body.classList.add('empty');
@@ -2017,9 +2133,9 @@
           body.textContent = text;
         }
       })
-      .catch(() => {
+      .catch(err => {
         body.classList.add('empty');
-        body.textContent = `No lyrics yet. Drop a file at ${t.lyrics}`;
+        body.textContent = `Couldn't load ${t.lyrics}\n(${err.message})\n\nCheck the filename and capitalization match exactly.`;
       });
   }
   function closeLyrics() {
@@ -2043,69 +2159,76 @@
      The first image in the active gender folder is shown.
      If a folder is empty, the placeholder shows.
   */
+  /* ============================================================
+     STORE
+     ============================================================
+     Image discovery is automatic. Drop PNGs into:
+       images/store/<slug>/<m|f>/<color>/1.png, 2.png, 3.png …
+     (or for single-color products: images/store/<slug>/<m|f>/1.png, …)
+     Files are probed by name (1..MAX_STORE_IMGS) and any that load
+     join the swipeable strip.
+  */
+  const MAX_STORE_IMGS = 20;
   const PRODUCTS = [
     {
+      slug: 'hat',
       emoji: "🧢",
       name: "Snapback",
       tag: "— black/white, embroidered",
       desc: "Structured snapback. Black crown, white front panel, white embroidery.",
       price: "$40", shipping: "+ shipping",
-      images: {
-        m: "images/store/hat/m/1.png",
-        m: "images/store/hat/m/2.png",
-        m: "images/store/hat/m/3.png",
-        m: "images/store/hat/m/4.png",
-        f: "images/store/hat/f/1.png",
-        f: "images/store/hat/f/2.png",
-        f: "images/store/hat/f/3.png",
-        f: "images/store/hat/f/4.png",
-      },
+      colors: [],   // empty = no color subfolder, just images/store/hat/<m|f>/N.png
     },
     {
+      slug: 'hoodie',
       emoji: "🧥",
       name: "Zip Hoodie",
       tag: "— heavyweight, navy",
       desc: "Unisex heavy-blend zip hoodie in navy. Cozy enough to live in.",
       price: "$60", shipping: "+ shipping",
-      images: {
-        m: "images/store/hoodie/m/1.png",
-        m: "images/store/hoodie/m/2.png",
-        m: "images/store/hoodie/m/3.png",
-        m: "images/store/hoodie/m/4.png",
-        m: "images/store/hoodie/m/5.png",
-        m: "images/store/hoodie/m/6.png",
-        f: "images/store/hoodie/f/1.png",
-        f: "images/store/hoodie/f/2.png",
-        f: "images/store/hoodie/f/3.png",
-        f: "images/store/hoodie/f/4.png",
-        f: "images/store/hoodie/f/5.png",
-        f: "images/store/hoodie/f/6.png",
-      },
+      colors: [],
     },
     {
+      slug: 'tee',
       emoji: "👕",
       name: "Classic Tee",
       tag: "— black or white",
-      desc: "Unisex classic tee. 100% cotton, soft hand-feel. Specify color in the order form.",
+      desc: "Unisex classic tee. 100% cotton, soft hand-feel.",
       price: "$25", shipping: "+ shipping",
-      images: {
-        m: "images/store/tee/m/black/1.png",
-        m: "images/store/tee/m/black/2.png",
-        m: "images/store/tee/m/black/3.png",
-        m: "images/store/tee/m/white/1.png",
-        m: "images/store/tee/m/white/2.png",
-        m: "images/store/tee/m/white/3.png",
-        f: "images/store/tee/f/black/1.png",
-        f: "images/store/tee/f/black/2.png",
-        f: "images/store/tee/f/black/3.png",
-        f: "images/store/tee/f/white/1.png",
-        f: "images/store/tee/f/white/2.png",
-        f: "images/store/tee/f/white/3.png",
-      },
+      colors: ['black', 'white'],   // images/store/tee/<m|f>/black/N.png  and  .../white/N.png
     },
   ];
+
+  // Probe and build a lookup: PRODUCT_IMGS[slug][gender][color] = [paths…]
+  // color === '' for products with no color subfolder.
+  const PRODUCT_IMGS = {};
+  PRODUCTS.forEach(p => {
+    PRODUCT_IMGS[p.slug] = { m: {}, f: {} };
+    const colorList = p.colors.length ? p.colors : [''];
+    ['m', 'f'].forEach(g => {
+      colorList.forEach(c => {
+        PRODUCT_IMGS[p.slug][g][c] = [];
+        for (let i = 1; i <= MAX_STORE_IMGS; i++) {
+          const src = c
+            ? `images/store/${p.slug}/${g}/${c}/${i}.png`
+            : `images/store/${p.slug}/${g}/${i}.png`;
+          const probe = new Image();
+          probe.onload = () => {
+            PRODUCT_IMGS[p.slug][g][c].push(src);
+            PRODUCT_IMGS[p.slug][g][c].sort();
+            if (PRODUCTS[prodIdx].slug === p.slug && gender === g && currentColor === c) {
+              renderProduct();
+            }
+          };
+          probe.src = src;
+        }
+      });
+    });
+  });
+
   let prodIdx = 0;
   let gender = 'm';
+  let currentColor = PRODUCTS[0].colors[0] || '';
 
   function setGender(g) {
     gender = g;
@@ -2114,24 +2237,101 @@
     renderProduct();
   }
 
+  function setColor(c) {
+    currentColor = c;
+    document.querySelectorAll('#colorToggle button').forEach(b => {
+      b.classList.toggle('on', b.dataset.color === c);
+    });
+    renderProduct();
+  }
+
+  function renderColorToggle() {
+    const p = PRODUCTS[prodIdx];
+    const wrap = document.getElementById('colorToggle');
+    if (!wrap) return;
+    if (p.colors.length <= 1) {
+      wrap.style.display = 'none';
+      currentColor = p.colors[0] || '';
+      return;
+    }
+    if (!p.colors.includes(currentColor)) currentColor = p.colors[0];
+    wrap.style.display = 'inline-flex';
+    wrap.innerHTML = p.colors.map(c =>
+      `<button data-color="${c}" class="${c === currentColor ? 'on' : ''}" onclick="setColor('${c}')">${c.toUpperCase()}</button>`
+    ).join('');
+  }
+
   function renderProduct() {
     const p = PRODUCTS[prodIdx];
-    const src = p.images[gender];
-    document.getElementById('prodImgName').textContent = src;
+    renderColorToggle();
     document.getElementById('prodEmoji').textContent   = p.emoji;
     document.getElementById('prodName').textContent    = p.name;
     document.getElementById('prodTag').textContent     = p.tag;
     document.getElementById('prodDesc').textContent    = p.desc;
     document.getElementById('prodPrice').innerHTML     = `${p.price} <small>${p.shipping}</small>`;
-    document.getElementById('prodCounter').textContent = `${prodIdx+1} / ${PRODUCTS.length}`;
-    const img = document.getElementById('prodImg');
-    const ph  = document.getElementById('prodPh');
-    img.src = src;
-    img.style.display = 'block'; ph.style.display = 'none';
-    img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+
+    const list = (PRODUCT_IMGS[p.slug] && PRODUCT_IMGS[p.slug][gender] && PRODUCT_IMGS[p.slug][gender][currentColor]) || [];
+    const wrap  = document.getElementById('prodGallery');
+    const empty = document.getElementById('prodEmpty');
+
+    if (!list.length) {
+      wrap.parentElement.style.display = 'none';
+      empty.style.display = 'flex';
+      const path = currentColor
+        ? `images/store/${p.slug}/${gender}/${currentColor}/`
+        : `images/store/${p.slug}/${gender}/`;
+      document.getElementById('prodEmptyText').textContent = `Drop images into ${path}`;
+      updateStripArrows();
+      return;
+    }
+    wrap.parentElement.style.display = '';
+    empty.style.display = 'none';
+    wrap.innerHTML = list.map(src => `
+      <div class="g-cell">
+        <img src="${src}" alt="">
+      </div>
+    `).join('');
+    wrap.scrollLeft = 0;
+    updateStripArrows();
   }
+
+  // Cycle one image at a time using the on-strip arrows
+  function stripStep(dir) {
+    const wrap = document.getElementById('prodGallery');
+    if (!wrap || !wrap.children.length) return;
+    wrap.scrollBy({ left: wrap.clientWidth * dir, behavior: 'smooth' });
+  }
+  function updateStripArrows() {
+    // hide arrows when there's nothing to scroll
+    const wrap = document.getElementById('prodGallery');
+    const has = wrap && wrap.children.length > 1;
+    document.querySelectorAll('.strip-arrow').forEach(a => a.style.display = has ? 'grid' : 'none');
+  }
+
   function nextProduct() { prodIdx = (prodIdx + 1) % PRODUCTS.length; renderProduct(); }
   function prevProduct() { prodIdx = (prodIdx - 1 + PRODUCTS.length) % PRODUCTS.length; renderProduct(); }
+
+  /* Desktop: enable mouse click-and-drag to scroll the strip */
+  function enableDragScroll(el) {
+    let down = false, startX = 0, startLeft = 0, moved = false;
+    el.addEventListener('mousedown', e => {
+      down = true; moved = false;
+      startX = e.pageX; startLeft = el.scrollLeft;
+      el.classList.add('dragging');
+    });
+    el.addEventListener('mouseleave', () => { down = false; el.classList.remove('dragging'); });
+    el.addEventListener('mouseup',    () => { down = false; el.classList.remove('dragging'); });
+    el.addEventListener('mousemove', e => {
+      if (!down) return;
+      const dx = e.pageX - startX;
+      if (Math.abs(dx) > 4) moved = true;
+      el.scrollLeft = startLeft - dx;
+    });
+    // suppress lightbox click after drag
+    el.addEventListener('click', e => {
+      if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+    }, true);
+  }
 
   /* ORDER FORM */
   const ORDER_TO = 'stuff.people.send.steve@gmail.com';
@@ -2140,6 +2340,7 @@
     const p = PRODUCTS[prodIdx];
     document.getElementById('orderTitle').textContent = p.name;
     document.getElementById('orderSub').textContent   = `${p.price} ${p.shipping}`;
+    document.getElementById('ofColor').value = (p.colors.length > 1) ? currentColor : '';
     document.getElementById('orderModal').classList.add('open');
   }
   function closeOrderForm() {
@@ -2184,6 +2385,7 @@ Notes:
 Thanks!`;
     window.location.href = `mailto:${ORDER_TO}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
   }
+
 
   /* ============================================================
      TOYS
@@ -2371,6 +2573,7 @@ Thanks!`;
   loadTrack(0);
   renderGallery();
   renderProduct();
+  enableDragScroll(document.getElementById('prodGallery'));
   makeField();
   setBreath('breathe');
   setFace(0, 1);  // initializes face image with code 111
