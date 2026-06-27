@@ -342,7 +342,7 @@
     transform: translateY(0);
   }
   .p2pc-icon {
-    width: 44px; height: 44px;
+    width: 64px; height: 64px;
     display: inline-grid; place-items: center;
     border-radius: 10px;
     background: var(--bg-deeper);
@@ -1563,14 +1563,21 @@
     </div>
 
     <!-- P2PC BUTTON -->
-    <div class="p2pc-wrap">
-      <a class="p2pc-btn" href="https://dataidoo.github.io/P2PC/" target="_blank" rel="noopener" aria-label="P2PC">
-        <span class="p2pc-icon">
-          <img src="assets/p2pc-icon.png" alt="P2PC" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-          <span style="display:none;">ico</span>
-        </span>
-      </a>
-    </div>
+    <div class="p2pc-wrap" style="gap: 30px;">
+       <a class="p2pc-btn" href="https://dataidoo.github.io/P2PC/" target="_blank" rel="noopener" aria-label="P2PC">
+    <span class="p2pc-icon">
+      <img src="assets/p2pc-icon.png" alt="P2PC" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+      <span style="display:none;">P2PC</span>
+    </span>
+  </a>
+
+  <a class="p2pc-btn" href="https://labs.google/fx/tools/flow/shared/tool/1afc375d-103c-4ea9-8725-3fa41475626b" target="_blank" rel="noopener" aria-label="Google Tool">
+    <span class="p2pc-icon">
+      <img src="assets/google-tool-icon.png" alt="Google Tool" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+      <span style="display:none;">Tool</span>
+    </span>
+  </a>
+</div>
 
     <!-- LYRICS MODAL -->
     <div class="lyrics-modal" id="lyricsModal" onclick="closeLyrics()">
